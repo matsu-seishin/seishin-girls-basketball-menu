@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖心学園中等教育学校・女子バスケ部用 練習メニュー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Court (#FFF7ED, #FB923C, #475569, #1E293B) -->
+    <!-- Application Structure Plan: A single-page application with four main tab-based sections: '今日の練習' (Today's Practice), '強くなるコツ' (Tips to Get Stronger), '安全第一' (Safety First), and 'チームの約束' (Team Promise). This task-oriented structure allows students to quickly find relevant information, rather than navigating a linear report. '今日の練習' uses an interactive timeline and chart for easy visualization. The other sections use cards and toggles for progressive disclosure of details, improving usability and reducing cognitive load for new players. The practice menu has been specifically adjusted for 8 players with detailed drill descriptions. -->
+    <!-- Visualization & Content Choices: 1. Practice Plan -> Goal: Organize/Inform -> Viz: Chart.js Donut Chart & interactive HTML cards -> Interaction: Chart shows time breakdown, clicking a card reveals detailed drills -> Justification: Visualizes practice structure effectively with actionable, specific drills for 8 players. 2. Skills & Safety -> Goal: Inform/Organize -> Viz: Tabbed/Accordion layout with HTML cards and icons -> Interaction: Click to reveal content -> Justification: Segments complex information into digestible chunks. 3. Team Principles -> Goal: Inform -> Viz: Stylized text cards -> Interaction: None -> Justification: Emphasizes core values cleanly. All visuals are built with standard libraries or HTML/CSS to avoid dependencies. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #FFF7ED;
+            color: #334155;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link.active {
+            color: #FB923C;
+            border-bottom-color: #FB923C;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 380px;
+        }
+        @media (min-width: 640px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .details-content.open {
+            max-height: 1000px;
+        }
+        .tab-button.active {
+            background-color: #FB923C;
+            color: white;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-orange-500">聖心学園中等教育学校</h1>
+            <p class="text-slate-600 mt-2">女子バスケ部用 練習メニュー</p>
+        </header>
+
+        <nav class="flex justify-center border-b border-slate-300 mb-8">
+            <a href="#practice" class="nav-link active text-slate-600 py-4 px-3 sm:px-6 text-sm sm:text-base font-bold">🏀 今日の練習</a>
+            <a href="#skills" class="nav-link text-slate-600 py-4 px-3 sm:px-6 text-sm sm:text-base font-bold">💪 強くなるコツ</a>
+            <a href="#safety" class="nav-link text-slate-600 py-4 px-3 sm:px-6 text-sm sm:text-base font-bold">⛑️ 安全第一</a>
+            <a href="#team" class="nav-link text-slate-600 py-4 px-3 sm:px-6 text-sm sm:text-base font-bold">🤝 チームの約束</a>
+        </nav>
+
+        <main>
+            <!-- Section: Today's Practice -->
+            <section id="practice" class="content-section active">
+                <div class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-orange-500 mb-2">90分練習プラン (8人用)</h2>
+                    <p class="text-slate-600">部員8名でも、一人ひとりが最大限に成長できる90分練習プランだよ！体を準備し、スキルを磨き、チームで協力し、体をケアすることで、時間を有効に使おう。</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container">
+                        <canvas id="practiceChart"></canvas>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="details-toggle w-full p-4 text-left font-bold flex justify-between items-center">
+                                <span>1. ウォームアップ (15分)</span>
+                                <span class="text-xl transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="details-content">
+                                <div class="p-4 border-t border-slate-200">
+                                    <h4 class="font-bold text-orange-500">目的：</h4>
+                                    <p class="text-sm text-slate-600 mb-2">体を温めて、怪我を防ぐ準備をしよう！</p>
+                                    <h4 class="font-bold text-orange-500">主な練習内容：</h4>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                        <li>**軽いジョギングやスキップ (5分)**: コートを周回しながら、サイドステップ、バック走、クロスステップなどを組み合わせる。</li>
+                                        <li>**動きながら体を伸ばすダイナミックストレッチ (5分)**: アームサークル (腕回し)、レッグスイング (脚振り)、体側伸ばし、股関節回しなど、大きく体を動かすストレッチ。</li>
+                                        <li>**ボールハンドリング (5分)**: その場でボール回し (頭、腰、足首)、ボールを床に強く叩きつけるドリル、指先でボールを触るフィンガーティップ。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="details-toggle w-full p-4 text-left font-bold flex justify-between items-center">
+                                <span>2. 基礎スキル (30分)</span>
+                                <span class="text-xl transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="details-content">
+                                <div class="p-4 border-t border-slate-200">
+                                    <h4 class="font-bold text-orange-500">目的：</h4>
+                                    <p class="text-sm text-slate-600 mb-2">バスケの基本的な動きを覚えよう！</p>
+                                     <h4 class="font-bold text-orange-500">主な練習内容：</h4>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                        <li>**ボールハンドリング (10分)**:
+                                            <ul>
+                                                <li>両手・片手ドリブル (低く強く、顔を上げて)</li>
+                                                <li>V字ドリブル、クロスオーバー、レッグスルー、バックビハインドなど基本的なドリブルチェンジ</li>
+                                                <li>ドリブルしながらの動き：前進、後退、サイドステップ</li>
+                                            </ul>
+                                        </li>
+                                        <li>**走り方と正しい止まり方 (5分)**:
+                                            <ul>
+                                                <li>ダッシュからのジャンプストップ (両足同時着地)</li>
+                                                <li>ダッシュからのステップストップ (片足ずつ着地)</li>
+                                                <li>ドリブルをしながらのストップ練習</li>
+                                            </ul>
+                                        </li>
+                                        <li>**ゴール下シュートの基本 (10分)**:
+                                            <ul>
+                                                <li>レイアップシュートの基本フォーム (踏み切り足、手の使い方)</li>
+                                                <li>左右両方から練習し、ゴールに当てる場所を意識する</li>
+                                                <li>リバウンドを取ってそのままシュート (連続シュート)</li>
+                                            </ul>
+                                        </li>
+                                        <li>**体幹トレーニング (5分)**:
+                                            <ul>
+                                                <li>プランク (30秒×3セット)</li>
+                                                <li>サイドプランク (左右各20秒×2セット)</li>
+                                                <li>バードドッグ (左右各10回×2セット)</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="details-toggle w-full p-4 text-left font-bold flex justify-between items-center">
+                                <span>3. 応用 & チームプレイ (30分)</span>
+                                <span class="text-xl transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="details-content">
+                                <div class="p-4 border-t border-slate-200">
+                                    <h4 class="font-bold text-orange-500">目的：</h4>
+                                    <p class="text-sm text-slate-600 mb-2">覚えたスキルを試合で使えるようにしよう！</p>
+                                     <h4 class="font-bold text-orange-500">主な練習内容：</h4>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                        <li>**コーディネーションドリル (5分)**:
+                                            <ul>
+                                                <li>ラダートレーニング (細かなステップ、クイックネス向上)</li>
+                                                <li>コーンを使った方向転換ドリブル (ドリブルしながら急な方向転換)</li>
+                                            </ul>
+                                        </li>
+                                        <li>**少人数ゲーム形式 (20分)**:
+                                            <ul>
+                                                <li>**3対3ハーフコート (10分)**: 4人ずつ2チームに分け、ハーフコートで実践。パス回し、スクリーン、スペースの利用を意識する。交代で休憩。</li>
+                                                <li>**2対2、1対1ドリル (10分)**:
+                                                    <ul>
+                                                        <li>1対1: ディフェンスとの駆け引き、シュートまでの流れを練習。</li>
+                                                        <li>2対2: ピック＆ロール、パス＆ランなど連携プレイを試す。</li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>**速攻の練習 (5分)**:
+                                            <ul>
+                                                <li>リバウンドを取った選手がアウトレットパスを出し、両サイドを走る選手がゴールへ向かう。</li>
+                                                <li>シンプルな3人速攻 (3レーン速攻) からのシュート。</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="details-toggle w-full p-4 text-left font-bold flex justify-between items-center">
+                                <span>4. ゲーム形式 (10分)</span>
+                                <span class="text-xl transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="details-content">
+                                <div class="p-4 border-t border-slate-200">
+                                    <h4 class="font-bold text-orange-500">目的：</h4>
+                                    <p class="text-sm text-slate-600 mb-2">実際の試合をイメージして、実践力を高めよう！</p>
+                                     <h4 class="font-bold text-orange-500">主な練習内容：</h4>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                        <li>**ミニゲーム (5分)**:
+                                            <ul>
+                                                <li>**4対4 または 3対3のフルコート/ハーフコートゲーム**。チームを分けて全員が参加。</li>
+                                                <li>特別ルール設定: 例) 3回パスしてからシュート、必ず全員がボールに触るなど、基本を意識させる。</li>
+                                            </ul>
+                                        </li>
+                                        <li>**フリースロー練習 (3分)**: 交代でフリースローラインから2本ずつシュート。集中力を高める。</li>
+                                        <li>**シュート対決 (2分)**: 円陣になり、順番にシュート。外したら腕立て1回など、ゲーム要素を取り入れる。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <button class="details-toggle w-full p-4 text-left font-bold flex justify-between items-center">
+                                <span>5. クールダウン (5分)</span>
+                                <span class="text-xl transform transition-transform duration-300">▼</span>
+                            </button>
+                            <div class="details-content">
+                                <div class="p-4 border-t border-slate-200">
+                                    <h4 class="font-bold text-orange-500">目的：</h4>
+                                    <p class="text-sm text-slate-600 mb-2">疲れた体を休ませて、次の練習に備えよう！</p>
+                                     <h4 class="font-bold text-orange-500">主な練習内容：</h4>
+                                    <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                        <li>**軽いジョギング (1分)**: コートをゆっくり周回し、呼吸を整える。</li>
+                                        <li>**静的ストレッチ (3分)**:
+                                            <ul>
+                                                <li>ハムストリング (太もも裏)、大腿四頭筋 (太もも前)、ふくらはぎのストレッチ (各20秒)</li>
+                                                <li>肩、背中、股関節周りのストレッチ (各20秒)</li>
+                                                <li>呼吸をゆっくりしながら、伸ばす筋肉を意識する。</li>
+                                            </ul>
+                                        </li>
+                                        <li>**ボールを使ったマッサージ (1分)**: ボールを足の裏で転がしたり、ふくらはぎに当てて体重をかけたりして筋肉をほぐす。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Skills -->
+            <section id="skills" class="content-section">
+                <div class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-orange-500 mb-2">スキルアップのコツ</h2>
+                    <p class="text-slate-600">基礎をしっかり身につけることが、勝利への一番の近道。ここでは、大事なスキルをいくつか紹介するよ。</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">🖐️ ボールハンドリング</h3>
+                        <p class="text-sm text-slate-600">ボールが自分の体の一部みたいに感じられるように練習しよう。指を大きく開いてボールを「掴む」、そして「パンッ」と音が出るように強く「叩く」のが基本だよ。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">🏃‍♀️ 走り方と止まり方</h3>
+                        <p class="text-sm text-slate-600">バスケは急に止まったり、方向を変えたりするスポーツ。怪我を防ぐために、かかとから体重を受け止めて、体の裏側の筋肉を使って止まる練習をしよう。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">🎯 シュートの基本</h3>
+                        <p class="text-sm text-slate-600">まずはゴール下のシュートを確実に決められるように練習しよう。腕をL字型にして、指先でボールを押し出すように放つのがポイントだよ。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">🧘 体幹トレーニング</h3>
+                        <p class="text-sm text-slate-600">当たり負けしない、ブレない体を作るために体幹はとっても大事。バランスボールを使ったり、プランクをしたりして、体の軸を強くしよう。</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">🧐 判断力</h3>
+                        <p class="text-sm text-slate-600">1対1や2対2の練習では、相手の動きを見て、どう動くべきか「自分で考えて判断する」ことが大切。コーチはみんなが自分で判断できるようサポートするよ。</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2 text-slate-800">⚡ 速攻</h3>
+                        <p class="text-sm text-slate-600">リバウンドを取ったら、素早く味方にパス！みんなでゴールに向かって走る練習で、得点チャンスを増やそう。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Safety -->
+            <section id="safety" class="content-section">
+                <div class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-orange-500 mb-2">安全にプレイするために</h2>
+                    <p class="text-slate-600">最高のパフォーマンスは、健康な体から。怪我と熱中症に気をつけて、バスケを思いっきり楽しもう！</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
+                    <div class="flex justify-center mb-6 border-b border-slate-200">
+                        <button class="tab-button active flex-1 sm:flex-initial text-center sm:w-48 py-2 px-4 rounded-t-lg font-bold" data-tab="injury">怪我の予防</button>
+                        <button class="tab-button flex-1 sm:flex-initial text-center sm:w-48 py-2 px-4 rounded-t-lg font-bold" data-tab="heatstroke">熱中症対策</button>
+                    </div>
+                    <div id="injury" class="tab-content active">
+                        <h3 class="text-xl font-bold text-center mb-4 text-slate-700">特に気をつけたい怪我と予防法</h3>
+                        <div class="space-y-4">
+                            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                <h4 class="font-bold text-orange-600">足首の捻挫</h4>
+                                <p class="text-sm text-slate-600">バスケで一番多い怪我。着地する時に足首をまっすぐにする意識が大切。タオルギャザー（タオルを足指でたぐり寄せる運動）や足首回しで予防しよう。</p>
+                            </div>
+                             <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                                <h4 class="font-bold text-orange-600">膝の怪我 (特に女子選手は注意！)</h4>
+                                <p class="text-sm text-slate-600">女子選手は膝の怪我が多い傾向があるよ。正しい止まり方をマスターし、片足スクワットや体幹トレーニングで、片足で体をしっかり支えられるようにしよう。</p>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-center mt-6 mb-4 text-slate-700">安全のための習慣</h3>
+                        <ul class="list-disc list-inside text-slate-600 space-y-2 text-sm">
+                            <li><strong>ウォームアップとクールダウンを絶対にやる！</strong> 練習前は体を温め、練習後は体を伸ばして疲れを取ろう。</li>
+                            <li><strong>正しいシューズを選ぼう。</strong>足首を支えるハイカットで、クッション性のあるものがおすすめ。</li>
+                            <li><strong>無理はしない！</strong> 疲れたり、どこか痛かったらすぐにコーチに伝えよう。休むのも大切なトレーニングだよ。</li>
+                             <li><strong>しっかり食べて、しっかり寝る！</strong> ご飯と睡眠が、君の体を強くするよ。</li>
+                        </ul>
+                    </div>
+                    <div id="heatstroke" class="tab-content hidden">
+                         <h3 class="text-xl font-bold text-center mb-4 text-slate-700">熱中症にならないためのチェックリスト</h3>
+                         <ul class="space-y-3 text-slate-600">
+                            <li class="flex items-start">
+                                <span class="text-orange-500 font-bold text-xl mr-3">💧</span>
+                                <div>
+                                    <h4 class="font-bold">こまめな水分補給</h4>
+                                    <p class="text-sm">喉が渇く前に飲むのがポイント！練習中は20分に1回コップ1杯くらいを目安に。スポーツドリンクも上手に使おう。</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-orange-500 font-bold text-xl mr-3">🕒</span>
+                                <div>
+                                    <h4 class="font-bold">しっかり休憩</h4>
+                                    <p class="text-sm">20-30分ごとに5-10分の休憩を取ろう。日陰や涼しい場所で体を冷やしてね。氷嚢も効果的！</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-orange-500 font-bold text-xl mr-3">👕</span>
+                                <div>
+                                    <h4 class="font-bold">服装に気をつける</h4>
+                                    <p class="text-sm">風通しが良くて、汗を吸いやすい服を選ぼう。着替えやタオルも忘れずに。</p>
+                                </div>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-orange-500 font-bold text-xl mr-3">❗</span>
+                                <div>
+                                    <h4 class="font-bold">体調がおかしいなと思ったら…</h4>
+                                    <p class="text-sm">めまい、頭痛、吐き気は熱中症のサインかも。絶対に無理しないで、すぐにコーチに教えてね！</p>
+                                </div>
+                            </li>
+                         </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Team -->
+            <section id="team" class="content-section">
+                 <div class="text-center mb-8 p-6 bg-white rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold text-orange-500 mb-2">最高のチームを作ろう！</h2>
+                    <p class="text-slate-600">バスケは一人じゃできないスポーツ。みんなで協力して、最高のチームになろう。大切なのはこの3つの心！</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
+                        <h3 class="text-2xl font-bold text-orange-500">PLAY HARD</h3>
+                        <p class="mt-2 text-slate-600">全力を尽くす</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
+                        <h3 class="text-2xl font-bold text-orange-500">OPEN MIND</h3>
+                        <p class="mt-2 text-slate-600">前向きに頑張る</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
+                        <h3 class="text-2xl font-bold text-orange-500">HAVE FUN</h3>
+                        <p class="mt-2 text-slate-600">バスケを楽しむ</p>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-xl mb-2 text-center text-slate-800">チームで成長するために</h3>
+                    <ul class="list-disc list-inside text-slate-600 space-y-2 text-sm">
+                        <li><strong>たくさん話そう！</strong> 練習のこと、試合のこと、何でも話せる雰囲気を作ろう。ミスを恐れずに挑戦できるチームが強いチームだよ。</li>
+                        <li><strong>自分で考えてプレイしよう！</strong> コーチはみんなが試合で活躍できるよう、自分で判断する力をつけるサポートをするよ。</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Navigation Logic
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const targetId = link.getAttribute('href').substring(1);
+
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            link.classList.add('active');
+
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === targetId) {
+                    section.classList.add('active');
+                }
+            });
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    // Chart.js doughnut chart for practice breakdown
+    const ctx = document.getElementById('practiceChart').getContext('2d');
+    const practiceChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['ウォームアップ', '基礎スキル', '応用 & チーム', 'ゲーム', 'クールダウン'],
+            datasets: [{
+                label: '練習時間 (分)',
+                data: [15, 30, 30, 10, 5],
+                backgroundColor: [
+                    '#FDBA74', // orange-300
+                    '#FB923C', // orange-400
+                    '#F97316', // orange-500
+                    '#EA580C', // orange-600
+                    '#FED7AA'  // orange-200
+                ],
+                borderColor: '#FFF7ED',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: "'Inter', 'Noto Sans JP', sans-serif",
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '分';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Accordion/Details Toggle Logic
+    const detailsToggles = document.querySelectorAll('.details-toggle');
+    detailsToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const content = toggle.nextElementSibling;
+            const arrow = toggle.querySelector('span:last-child');
+            
+            // Close all other open accordions
+            document.querySelectorAll('.details-content.open').forEach(openContent => {
+                if (openContent !== content) {
+                    openContent.classList.remove('open');
+                    openContent.previousElementSibling.querySelector('span:last-child').style.transform = 'rotate(0deg)';
+                }
+            });
+
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        });
+    });
+
+    // Safety Section Tabs Logic
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabId = button.dataset.tab;
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.classList.remove('hidden');
+                    content.classList.add('active');
+                } else {
+                    content.classList.add('hidden');
+                    content.classList.remove('active');
+                }
+            });
+        });
+    });
+
+});
+</script>
+
+</body>
+</html>
